@@ -1,0 +1,57 @@
+using System;
+
+public class ShippingCalculator
+{
+    public static double CalculateShippingCost(double packageWeight, string shippingMethod, Tuple<double, double, double> packageDimensions = null)
+    {
+        // Define shipping rate per pound for different methods
+        var ratePerPound = new Dictionary<string, double>
+        {
+            { "standard", 1.5 },
+            { "express", 3.0 },
+            { "overnight", 5.0 }
+        };
+
+        // Define a base cost for each shipping method
+        var baseCost = new Dictionary<string, double>
+        {
+            { "standard", 10.0 },
+            { "express", 20.0 },
+            { "overnight", 30.0 }
+        };
+
+        // Check if packageDimensions are provided
+        double additionalCost = 0.0;
+        if (packageDimensions != null)
+        {
+            // Calculate the package volume
+            var packageVolume = packageDimensions.Item1 * packageDimensions.Item2 * packageDimensions.Item3;
+
+            // Additional cost based on package volume (e.g., for oversized packages)
+            if (packageVolume > 1000)
+            {
+                additionalCost = 15.0;
+            }
+        }
+
+        // Calculate the shipping cost
+        if (ratePerPound.ContainsKey(shippingMethod))
+        {
+            double cost = baseCost[shippingMethod] + (packageWeight * ratePerPound[shippingMethod]) + additionalCost;
+            return cost;
+        }
+        else
+        {
+            throw new ArgumentException("Invalid shipping method");
+        }
+    }
+
+    public static void Main()
+    {
+        double packageWeight = 5.0;  // in pounds
+        var packageDimensions = Tuple.Create(12.0, 8.0, 6.0);  // in inches (length, width, height)
+        string shippingMethod = "standard";
+        double cost = CalculateShippingCost(packageWeight, shippingMethod, packageDimensions);
+        Console.WriteLine($"The shipping cost is $ {cost:F2}");
+    }
+}
